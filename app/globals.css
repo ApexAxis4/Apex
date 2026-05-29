@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0B1020;
+  --foreground: #ffffff;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(circle at top,
+      rgba(59,130,246,0.15),
+      transparent 35%
+    ),
+    #0B1020;
+
+  color: white;
+
+  overflow-x: hidden;
+
+  font-family:
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B1020;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(59,130,246,0.5);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59,130,246,0.8);
+}
+
+/* SELECTION */
+
+::selection {
+  background: rgba(59,130,246,0.4);
+  color: white;
+}
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #0B1020;
+}
