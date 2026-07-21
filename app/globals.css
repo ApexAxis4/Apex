@@ -60,3 +60,6 @@ html {
 body {
   background: #0B1020;
 }
+html {
+  scroll-behavior: smooth;
+}

@@ -1,8 +1,44 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState } from "react";
+
+// ⚠️ Replace this with your own Formspree endpoint (see setup notes below)
+const FORM_ENDPOINT = "https://formspree.io/f/xjgnogpy";
+
+function scrollToId(id: string) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth" });
+}
 
 export default function Home() {
+  const [formState, setFormState] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+
+    setFormState("loading");
+
+    try {
+      const res = await fetch(FORM_ENDPOINT, {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" },
+      });
+
+      if (res.ok) {
+        setFormState("success");
+        form.reset();
+      } else {
+        setFormState("error");
+      }
+    } catch {
+      setFormState("error");
+    }
+  }
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#0B1020] text-white">
 
@@ -18,12 +54,15 @@ export default function Home() {
           </h1>
 
           <nav className="hidden gap-8 text-sm text-zinc-300 md:flex">
-            <a href="#">Services</a>
-            <a href="#">About</a>
-            <a href="#">Contact</a>
+            <button onClick={() => scrollToId("services")} className="transition hover:text-white">Services</button>
+            <button onClick={() => scrollToId("why")} className="transition hover:text-white">About</button>
+            <button onClick={() => scrollToId("contact")} className="transition hover:text-white">Contact</button>
           </nav>
 
-          <button className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold transition hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)]">
+          <button
+            onClick={() => scrollToId("contact")}
+            className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold transition hover:scale-105 hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)]"
+          >
             Book Consultation
           </button>
 
@@ -32,7 +71,7 @@ export default function Home() {
 
       {/* HERO SECTION */}
       <section className="relative overflow-hidden px-6 pb-24 pt-40">
-                {/* GRID BACKGROUND */}
+        {/* GRID BACKGROUND */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:80px_80px]" />
 
         <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
@@ -64,11 +103,17 @@ export default function Home() {
 
             <div className="mt-10 flex flex-wrap gap-4">
 
-              <button className="rounded-2xl bg-blue-500 px-8 py-5 text-lg font-semibold shadow-[0_20px_80px_rgba(59,130,246,0.35)] transition hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)]">
+              <button
+                onClick={() => scrollToId("contact")}
+                className="rounded-2xl bg-blue-500 px-8 py-5 text-lg font-semibold shadow-[0_20px_80px_rgba(59,130,246,0.35)] transition hover:scale-105 hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)]"
+              >
                 Book Free Consultation
               </button>
 
-              <button className="rounded-2xl border border-white/10 bg-white/5 px-8 py-5 text-lg font-semibold backdrop-blur-xl transition hover:scale-105 hover:bg-white/10">
+              <button
+                onClick={() => scrollToId("services")}
+                className="rounded-2xl border border-white/10 bg-white/5 px-8 py-5 text-lg font-semibold backdrop-blur-xl transition hover:scale-105 hover:bg-white/10"
+              >
                 Explore Services
               </button>
 
@@ -124,7 +169,7 @@ export default function Home() {
       </section>
 
       {/* SERVICES SECTION */}
-      <section className="px-6 py-28">
+      <section id="services" className="px-6 py-28 scroll-mt-24">
 
         <div className="mx-auto max-w-7xl">
 
@@ -274,8 +319,9 @@ export default function Home() {
         </div>
 
       </section>
-            {/* WHY APEX AXIS */}
-      <section className="px-6 py-28">
+
+      {/* WHY APEX AXIS */}
+      <section id="why" className="px-6 py-28 scroll-mt-24">
 
         <div className="mx-auto grid max-w-7xl gap-16 lg:grid-cols-2">
 
@@ -389,7 +435,8 @@ export default function Home() {
         </div>
 
       </section>
-            {/* STATS SECTION */}
+
+      {/* STATS SECTION */}
       <section className="px-6 py-28">
 
         <div className="mx-auto max-w-7xl">
@@ -501,7 +548,115 @@ export default function Home() {
         </div>
 
       </section>
-            {/* FINAL CTA SECTION */}
+
+      {/* CONTACT SECTION */}
+      <section id="contact" className="px-6 py-28 scroll-mt-24">
+
+        <div className="mx-auto max-w-3xl">
+
+          <div className="text-center">
+            <p className="mb-4 text-sm uppercase tracking-[0.3em] text-blue-400">
+              GET IN TOUCH
+            </p>
+
+            <h2 className="text-4xl font-bold md:text-6xl">
+              Let&apos;s Talk
+            </h2>
+
+            <p className="mt-6 text-lg leading-8 text-zinc-400">
+              Tell us about your support needs and we&apos;ll get back to you shortly.
+            </p>
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="mt-14 space-y-6 rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl md:p-12"
+          >
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div>
+                <label htmlFor="name" className="mb-2 block text-sm text-zinc-400">
+                  Name
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-blue-400/50 focus:bg-white/10"
+                  placeholder="Your name"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="mb-2 block text-sm text-zinc-400">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-blue-400/50 focus:bg-white/10"
+                  placeholder="you@company.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="company" className="mb-2 block text-sm text-zinc-400">
+                Company (optional)
+              </label>
+              <input
+                id="company"
+                name="company"
+                type="text"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-blue-400/50 focus:bg-white/10"
+                placeholder="Your company"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="message" className="mb-2 block text-sm text-zinc-400">
+                Message
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                required
+                rows={5}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-blue-400/50 focus:bg-white/10"
+                placeholder="Tell us what you need help with..."
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={formState === "loading"}
+              className="w-full rounded-2xl bg-blue-500 px-8 py-5 text-lg font-semibold shadow-[0_20px_80px_rgba(59,130,246,0.35)] transition hover:scale-[1.01] hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {formState === "loading" ? "Sending..." : "Send Message"}
+            </button>
+
+            {formState === "success" && (
+              <p className="text-center text-emerald-400">
+                Thanks — your message has been sent. We&apos;ll be in touch soon.
+              </p>
+            )}
+
+            {formState === "error" && (
+              <p className="text-center text-red-400">
+                Something went wrong. Please try again, or email us directly.
+              </p>
+            )}
+
+          </form>
+
+        </div>
+
+      </section>
+
+      {/* FINAL CTA SECTION */}
       <section className="px-6 pb-32 pt-10">
 
         <div className="mx-auto max-w-7xl overflow-hidden rounded-[50px] border border-white/10 bg-gradient-to-br from-blue-500/20 via-[#111827] to-black p-12 backdrop-blur-2xl md:p-20">
@@ -533,11 +688,17 @@ export default function Home() {
               {/* BUTTONS */}
               <div className="mt-12 flex flex-wrap justify-center gap-5">
 
-                <button className="rounded-2xl bg-blue-500 px-10 py-5 text-lg font-semibold shadow-[0_20px_80px_rgba(59,130,246,0.35)] transition duration-500 ease-out hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:scale-105 hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)]">
+                <button
+                  onClick={() => scrollToId("contact")}
+                  className="rounded-2xl bg-blue-500 px-10 py-5 text-lg font-semibold shadow-[0_20px_80px_rgba(59,130,246,0.35)] transition duration-500 ease-out hover:scale-105 hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)]"
+                >
                   Book Free Consultation
                 </button>
 
-                <button className="rounded-2xl border border-white/10 bg-white/5 px-10 py-5 text-lg font-semibold backdrop-blur-xl transition duration-500 ease-out hover:scale-105 hover:bg-white/10">
+                <button
+                  onClick={() => scrollToId("contact")}
+                  className="rounded-2xl border border-white/10 bg-white/5 px-10 py-5 text-lg font-semibold backdrop-blur-xl transition duration-500 ease-out hover:scale-105 hover:bg-white/10"
+                >
                   Contact Sales
                 </button>
 
