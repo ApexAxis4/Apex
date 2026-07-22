@@ -3,68 +3,202 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 
-// ⚠️ Replace this with your own Formspree endpoint (see setup notes below)
-const FORM_ENDPOINT = "https://formspree.io/f/xjgnogpy";
+const CONTACT_EMAIL = "support@apexaxis.in";
 
 function scrollToId(id: string) {
   const el = document.getElementById(id);
   if (el) el.scrollIntoView({ behavior: "smooth" });
 }
 
-export default function Home() {
-  const [formState, setFormState] = useState<"idle" | "loading" | "success" | "error">("idle");
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+/* ---------------------------------- */
+/* ICONS — simple line icons, no emoji */
+/* ---------------------------------- */
+
+function AxisMark({ className = "h-9 w-9" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 40 40" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="20" r="17" stroke="url(#axisGrad)" strokeWidth="1.5" />
+      <circle cx="20" cy="20" r="3.2" fill="url(#axisGrad)" />
+      <path d="M20 2.5V10M20 30V37.5M2.5 20H10M30 20H37.5" stroke="url(#axisGrad)" strokeWidth="1.5" strokeLinecap="round" />
+      <defs>
+        <linearGradient id="axisGrad" x1="2.5" y1="2.5" x2="37.5" y2="37.5" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#60A5FA" />
+          <stop offset="1" stopColor="#22D3EE" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+function IconChat() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" stroke="currentColor" strokeWidth="1.5">
+      <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 13.5v-8Z" strokeLinejoin="round" />
+      <path d="M8 8.5h8M8 12h5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconTool() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" stroke="currentColor" strokeWidth="1.5">
+      <path d="M14.5 6.5 17.5 3.5c1.5.3 2.7 1.5 3 3l-3 3-2.5-.5-.5-2.5Z" strokeLinejoin="round" />
+      <path d="m13 8-8.5 8.5a2.1 2.1 0 0 0 3 3L16 11" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="m17 15 3.5 3.5a2.1 2.1 0 0 1-3 3L14 18" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconPhone() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" stroke="currentColor" strokeWidth="1.5">
+      <path d="M6.5 3h2.2c.5 0 .9.3 1 .8l1 3.6c.1.4 0 .9-.4 1.2L8.7 10c1 2.4 3 4.3 5.4 5.3l1.4-1.5c.3-.3.8-.5 1.2-.4l3.6 1c.5.1.8.5.8 1v2.2c0 .9-.8 1.6-1.7 1.5-7-.6-12.6-6.2-13.2-13.2C5 4.8 5.7 3 6.5 3Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconMail() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" stroke="currentColor" strokeWidth="1.5">
+      <rect x="3.5" y="5.5" width="17" height="13" rx="2.2" strokeLinejoin="round" />
+      <path d="m4.5 7 6.6 5.2a1.6 1.6 0 0 0 2 0L19.5 7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconRocket() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" stroke="currentColor" strokeWidth="1.5">
+      <path d="M13.5 3.5c3 .5 5 2.5 5.5 5.5-2.5 1-4.5 3-6 6l-3.5-3.5c3-1.5 5-3.5 6-6.5-1 .5-2 1.2-3 2.2M8 14l-3 1 2-3M10 16l-1 3 3-2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="15" cy="9" r="1.2" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function IconGlobe() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" stroke="currentColor" strokeWidth="1.5">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M3.5 12h17M12 3.5c2.2 2.3 3.4 5.2 3.4 8.5s-1.2 6.2-3.4 8.5c-2.2-2.3-3.4-5.2-3.4-8.5S9.8 5.8 12 3.5Z" />
+    </svg>
+  );
+}
+
+function IconTicket() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" stroke="currentColor" strokeWidth="1.5">
+      <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h13A1.5 1.5 0 0 1 20 8.5v1a1.7 1.7 0 0 0 0 3.4v1.1A1.5 1.5 0 0 1 18.5 15.5h-13A1.5 1.5 0 0 1 4 14v-1a1.7 1.7 0 0 0 0-3.4v-1.1Z" strokeLinejoin="round" />
+      <path d="M14 7v9" strokeDasharray="2 2" />
+    </svg>
+  );
+}
+
+function IconUsers() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" stroke="currentColor" strokeWidth="1.5">
+      <circle cx="9" cy="8.5" r="3" />
+      <path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5" strokeLinecap="round" />
+      <path d="M15.5 6a3 3 0 0 1 0 5.9M20 19c0-2.4-1.6-4.2-3.8-4.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconArrowUpRight() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" stroke="currentColor" strokeWidth="2">
+      <path d="M7 17 17 7M9 7h8v8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* ---------------------------------- */
+/* PAGE                                */
+/* ---------------------------------- */
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 32 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
+};
+
+export default function Home() {
+  const [formState, setFormState] = useState<"idle" | "sent">("idle");
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const data = new FormData(form);
+    const name = String(data.get("name") || "");
+    const email = String(data.get("email") || "");
+    const company = String(data.get("company") || "");
+    const message = String(data.get("message") || "");
 
-    setFormState("loading");
+    const subject = `Website inquiry from ${name || "a visitor"}`;
+    const body =
+      `Name: ${name}\n` +
+      `Email: ${email}\n` +
+      (company ? `Company: ${company}\n` : "") +
+      `\nMessage:\n${message}`;
 
-    try {
-      const res = await fetch(FORM_ENDPOINT, {
-        method: "POST",
-        body: data,
-        headers: { Accept: "application/json" },
-      });
+    const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
 
-      if (res.ok) {
-        setFormState("success");
-        form.reset();
-      } else {
-        setFormState("error");
-      }
-    } catch {
-      setFormState("error");
-    }
+    window.location.href = mailtoUrl;
+    setFormState("sent");
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#0B1020] text-white">
+    <main className="min-h-screen overflow-hidden bg-[#0B1020] text-white selection:bg-blue-500/30">
 
       {/* BACKGROUND GLOW */}
-      <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-blue-500/20 blur-[160px]" />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-blue-500/20 blur-[160px]" />
 
       {/* NAVBAR */}
       <header className="fixed top-0 z-50 w-full border-b border-white/10 bg-[#0B1020]/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-
-          <h1 className="text-2xl font-bold tracking-wide">
-            APEX <span className="text-blue-400">AXIS</span>
-          </h1>
-
-          <nav className="hidden gap-8 text-sm text-zinc-300 md:flex">
-            <button onClick={() => scrollToId("services")} className="transition hover:text-white">Services</button>
-            <button onClick={() => scrollToId("why")} className="transition hover:text-white">About</button>
-            <button onClick={() => scrollToId("contact")} className="transition hover:text-white">Contact</button>
-          </nav>
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
 
           <button
-            onClick={() => scrollToId("contact")}
-            className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold transition hover:scale-105 hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)]"
+            onClick={scrollToTop}
+            aria-label="Apex Axis — back to top"
+            className="group flex items-center gap-3 transition"
           >
-            Book Consultation
+            <AxisMark className="h-9 w-9 transition duration-500 group-hover:rotate-90" />
+            <span className="text-xl font-bold tracking-wide">
+              APEX <span className="text-blue-400">AXIS</span>
+            </span>
           </button>
+
+          <nav className="hidden gap-8 text-sm text-zinc-300 md:flex">
+            <button onClick={() => scrollToId("services")} className="transition hover:text-white">
+              Services
+            </button>
+            <button onClick={() => scrollToId("why")} className="transition hover:text-white">
+              About
+            </button>
+            <button onClick={() => scrollToId("contact")} className="transition hover:text-white">
+              Contact
+            </button>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="hidden items-center gap-2 text-sm text-zinc-400 transition hover:text-blue-300 lg:flex"
+            >
+              <IconMail />
+              <span className="sr-only sm:not-sr-only">{CONTACT_EMAIL}</span>
+            </a>
+            <button
+              onClick={() => scrollToId("contact")}
+              className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold transition hover:scale-105 hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)]"
+            >
+              Get In Touch
+            </button>
+          </div>
 
         </div>
       </header>
@@ -74,7 +208,7 @@ export default function Home() {
         {/* GRID BACKGROUND */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:80px_80px]" />
 
-        <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
 
           {/* LEFT SIDE */}
           <motion.div
@@ -83,11 +217,12 @@ export default function Home() {
             transition={{ duration: 0.8 }}
           >
 
-            <div className="mb-6 inline-flex rounded-full border border-blue-500/20 bg-blue-500/10 px-5 py-3 text-sm text-blue-300 backdrop-blur-xl">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-5 py-3 text-sm text-blue-300 backdrop-blur-xl">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               Enterprise Customer Support Infrastructure
             </div>
 
-            <h1 className="max-w-4xl text-6xl font-black leading-tight tracking-[-0.04em] md:text-8xl">
+            <h1 className="max-w-4xl text-6xl font-black leading-[1.02] tracking-[-0.04em] md:text-8xl">
               Outsource
               <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
                 {" "}Support
@@ -105,9 +240,10 @@ export default function Home() {
 
               <button
                 onClick={() => scrollToId("contact")}
-                className="rounded-2xl bg-blue-500 px-8 py-5 text-lg font-semibold shadow-[0_20px_80px_rgba(59,130,246,0.35)] transition hover:scale-105 hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)]"
+                className="group inline-flex items-center gap-2 rounded-2xl bg-blue-500 px-8 py-5 text-lg font-semibold shadow-[0_20px_80px_rgba(59,130,246,0.35)] transition hover:scale-105 hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)]"
               >
                 Book Free Consultation
+                <IconArrowUpRight />
               </button>
 
               <button
@@ -128,6 +264,15 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative animate-[float_6s_ease-in-out_infinite]"
           >
+
+            {/* rotating axis ring flourish */}
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+              className="pointer-events-none absolute -right-10 -top-10 hidden h-28 w-28 opacity-70 md:block"
+            >
+              <AxisMark className="h-full w-full" />
+            </motion.div>
 
             <div className="overflow-hidden rounded-[40px] border border-white/10 shadow-[0_30px_120px_rgba(0,0,0,0.5)]">
 
@@ -169,11 +314,17 @@ export default function Home() {
       </section>
 
       {/* SERVICES SECTION */}
-      <section id="services" className="px-6 py-28 scroll-mt-24">
+      <section id="services" className="scroll-mt-24 px-6 py-28">
 
         <div className="mx-auto max-w-7xl">
 
-          <div className="max-w-3xl">
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={fadeUp}
+            className="max-w-3xl"
+          >
 
             <p className="mb-4 text-sm uppercase tracking-[0.3em] text-blue-400">
               SERVICES
@@ -189,130 +340,43 @@ export default function Home() {
               and enterprise customer experience systems.
             </p>
 
-          </div>
+          </motion.div>
 
           {/* SERVICE CARDS */}
           <div className="mt-16 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
 
-            {/* CARD 1 */}
-            <motion.div
-              whileHover={{ y: -10 }}
-              className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl transition duration-500 ease-out hover:shadow-[0_20px_80px_rgba(59,130,246,0.15)]"
-            >
+            {[
+              { icon: <IconChat />, title: "Live Chat Support", desc: "Real-time customer conversations managed by trained support professionals." },
+              { icon: <IconTool />, title: "Technical Support", desc: "Dedicated remote technical assistance and troubleshooting operations." },
+              { icon: <IconPhone />, title: "Voice Support", desc: "Professional inbound and outbound customer support call operations." },
+              { icon: <IconTicket />, title: "Email Support", desc: "SLA-driven email support workflows and customer ticket management." },
+              { icon: <IconRocket />, title: "Customer Success", desc: "Improve retention, onboarding, engagement, and customer lifecycle operations." },
+              { icon: <IconGlobe />, title: "Dedicated Remote Teams", desc: "Fully managed support professionals customized for your operations." },
+            ].map((s) => (
+              <motion.div
+                key={s.title}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.3 }}
+                variants={fadeUp}
+                whileHover={{ y: -10 }}
+                className="group rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl transition duration-500 ease-out hover:border-blue-400/30 hover:shadow-[0_20px_80px_rgba(59,130,246,0.15)]"
+              >
 
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/10 text-2xl">
-                💬
-              </div>
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-300 transition duration-500 group-hover:bg-blue-500/20 group-hover:text-blue-200">
+                  {s.icon}
+                </div>
 
-              <h3 className="text-2xl font-semibold">
-                Live Chat Support
-              </h3>
+                <h3 className="text-2xl font-semibold">
+                  {s.title}
+                </h3>
 
-              <p className="mt-4 leading-7 text-zinc-400">
-                Real-time customer conversations managed by trained support professionals.
-              </p>
+                <p className="mt-4 leading-7 text-zinc-400">
+                  {s.desc}
+                </p>
 
-            </motion.div>
-
-            {/* CARD 2 */}
-            <motion.div
-              whileHover={{ y: -10 }}
-              className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl transition duration-500 ease-out hover:shadow-[0_20px_80px_rgba(59,130,246,0.15)]"
-            >
-
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/10 text-2xl">
-                🛠️
-              </div>
-
-              <h3 className="text-2xl font-semibold">
-                Technical Support
-              </h3>
-
-              <p className="mt-4 leading-7 text-zinc-400">
-                Dedicated remote technical assistance and troubleshooting operations.
-              </p>
-
-            </motion.div>
-
-            {/* CARD 3 */}
-            <motion.div
-              whileHover={{ y: -10 }}
-              className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl transition duration-500 ease-out hover:shadow-[0_20px_80px_rgba(59,130,246,0.15)]"
-            >
-
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/10 text-2xl">
-                📞
-              </div>
-
-              <h3 className="text-2xl font-semibold">
-                Voice Support
-              </h3>
-
-              <p className="mt-4 leading-7 text-zinc-400">
-                Professional inbound and outbound customer support call operations.
-              </p>
-
-            </motion.div>
-
-            {/* CARD 4 */}
-            <motion.div
-              whileHover={{ y: -10 }}
-              className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl transition duration-500 ease-out hover:shadow-[0_20px_80px_rgba(59,130,246,0.15)]"
-            >
-
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/10 text-2xl">
-                📧
-              </div>
-
-              <h3 className="text-2xl font-semibold">
-                Email Support
-              </h3>
-
-              <p className="mt-4 leading-7 text-zinc-400">
-                SLA-driven email support workflows and customer ticket management.
-              </p>
-
-            </motion.div>
-
-            {/* CARD 5 */}
-            <motion.div
-              whileHover={{ y: -10 }}
-              className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl transition duration-500 ease-out hover:shadow-[0_20px_80px_rgba(59,130,246,0.15)]"
-            >
-
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/10 text-2xl">
-                🚀
-              </div>
-
-              <h3 className="text-2xl font-semibold">
-                Customer Success
-              </h3>
-
-              <p className="mt-4 leading-7 text-zinc-400">
-                Improve retention, onboarding, engagement, and customer lifecycle operations.
-              </p>
-
-            </motion.div>
-
-            {/* CARD 6 */}
-            <motion.div
-              whileHover={{ y: -10 }}
-              className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl transition duration-500 ease-out hover:shadow-[0_20px_80px_rgba(59,130,246,0.15)]"
-            >
-
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/10 text-2xl">
-                🌍
-              </div>
-
-              <h3 className="text-2xl font-semibold">
-                Dedicated Remote Teams
-              </h3>
-
-              <p className="mt-4 leading-7 text-zinc-400">
-                Fully managed support professionals customized for your operations.
-              </p>
-
-            </motion.div>
+              </motion.div>
+            ))}
 
           </div>
 
@@ -321,12 +385,17 @@ export default function Home() {
       </section>
 
       {/* WHY APEX AXIS */}
-      <section id="why" className="px-6 py-28 scroll-mt-24">
+      <section id="why" className="scroll-mt-24 px-6 py-28">
 
         <div className="mx-auto grid max-w-7xl gap-16 lg:grid-cols-2">
 
           {/* LEFT SIDE */}
-          <div>
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={fadeUp}
+          >
 
             <p className="mb-4 text-sm uppercase tracking-[0.3em] text-blue-400">
               WHY APEX AXIS
@@ -344,60 +413,42 @@ export default function Home() {
 
             <div className="mt-10 space-y-5">
 
-              <div className="flex items-start gap-4">
-                <div className="mt-1 text-blue-400">
-                  ✓
+              {[
+                { title: "Enterprise-Level Support Operations", desc: "Professional systems, workflows, and SLA-driven execution." },
+                { title: "Dedicated Remote Teams", desc: "Fully managed customer support professionals for your business." },
+                { title: "Scalable Global Operations", desc: "Expand support capacity while maintaining service quality." },
+              ].map((item) => (
+                <div key={item.title} className="flex items-start gap-4">
+                  <div className="mt-1 text-blue-400">
+                    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="2">
+                      <path d="M5 12.5 10 17 19 7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {item.title}
+                    </h3>
+
+                    <p className="mt-1 text-zinc-400">
+                      {item.desc}
+                    </p>
+                  </div>
                 </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold">
-                    Enterprise-Level Support Operations
-                  </h3>
-
-                  <p className="mt-1 text-zinc-400">
-                    Professional systems, workflows, and SLA-driven execution.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="mt-1 text-blue-400">
-                  ✓
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold">
-                    Dedicated Remote Teams
-                  </h3>
-
-                  <p className="mt-1 text-zinc-400">
-                    Fully managed customer support professionals for your business.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="mt-1 text-blue-400">
-                  ✓
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold">
-                    Scalable Global Operations
-                  </h3>
-
-                  <p className="mt-1 text-zinc-400">
-                    Expand support capacity while maintaining service quality.
-                  </p>
-                </div>
-              </div>
+              ))}
 
             </div>
 
-          </div>
+          </motion.div>
 
           {/* RIGHT SIDE */}
-          <div className="relative animate-[float_6s_ease-in-out_infinite]">
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={fadeUp}
+            className="relative animate-[float_6s_ease-in-out_infinite]"
+          >
 
             <div className="overflow-hidden rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-xl">
 
@@ -430,7 +481,7 @@ export default function Home() {
 
             </motion.div>
 
-          </div>
+          </motion.div>
 
         </div>
 
@@ -442,7 +493,13 @@ export default function Home() {
         <div className="mx-auto max-w-7xl">
 
           {/* TOP TEXT */}
-          <div className="max-w-3xl">
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={fadeUp}
+            className="max-w-3xl"
+          >
 
             <p className="mb-4 text-sm uppercase tracking-[0.3em] text-blue-400">
               GLOBAL OPERATIONS
@@ -458,90 +515,43 @@ export default function Home() {
               remote teams, and global customer experience workflows.
             </p>
 
-          </div>
+          </motion.div>
 
           {/* STATS GRID */}
           <div className="mt-20 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
-            {/* CARD 1 */}
-            <motion.div
-              whileHover={{ y: -10 }}
-              className="rounded-3xl border border-white/10 bg-white/5 p-10 backdrop-blur-xl"
-            >
+            {[
+              { icon: <IconGlobe />, value: "24/7", label: "Live Operations", desc: "Continuous support coverage across global time zones." },
+              { icon: <IconUsers />, value: "98%", label: "Customer Satisfaction", desc: "Enterprise-level support quality and customer experience." },
+              { icon: <IconRocket />, value: "100%", label: "Remote Infrastructure", desc: "Fully scalable distributed support operations." },
+              { icon: <IconTicket />, value: "SLA", label: "Enterprise Workflows", desc: "Structured operational systems optimized for scale." },
+            ].map((stat) => (
+              <motion.div
+                key={stat.label}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.3 }}
+                variants={fadeUp}
+                whileHover={{ y: -10 }}
+                className="rounded-3xl border border-white/10 bg-white/5 p-10 backdrop-blur-xl transition hover:border-blue-400/30"
+              >
 
-              <h3 className="text-6xl font-black text-blue-400">
-                24/7
-              </h3>
+                <div className="mb-4 text-blue-300">{stat.icon}</div>
 
-              <p className="mt-6 text-xl font-semibold">
-                Live Operations
-              </p>
+                <h3 className="text-6xl font-black text-blue-400">
+                  {stat.value}
+                </h3>
 
-              <p className="mt-4 leading-7 text-zinc-400">
-                Continuous support coverage across global time zones.
-              </p>
+                <p className="mt-6 text-xl font-semibold">
+                  {stat.label}
+                </p>
 
-            </motion.div>
+                <p className="mt-4 leading-7 text-zinc-400">
+                  {stat.desc}
+                </p>
 
-            {/* CARD 2 */}
-            <motion.div
-              whileHover={{ y: -10 }}
-              className="rounded-3xl border border-white/10 bg-white/5 p-10 backdrop-blur-xl"
-            >
-
-              <h3 className="text-6xl font-black text-blue-400">
-                98%
-              </h3>
-
-              <p className="mt-6 text-xl font-semibold">
-                Customer Satisfaction
-              </p>
-
-              <p className="mt-4 leading-7 text-zinc-400">
-                Enterprise-level support quality and customer experience.
-              </p>
-
-            </motion.div>
-
-            {/* CARD 3 */}
-            <motion.div
-              whileHover={{ y: -10 }}
-              className="rounded-3xl border border-white/10 bg-white/5 p-10 backdrop-blur-xl"
-            >
-
-              <h3 className="text-6xl font-black text-blue-400">
-                100%
-              </h3>
-
-              <p className="mt-6 text-xl font-semibold">
-                Remote Infrastructure
-              </p>
-
-              <p className="mt-4 leading-7 text-zinc-400">
-                Fully scalable distributed support operations.
-              </p>
-
-            </motion.div>
-
-            {/* CARD 4 */}
-            <motion.div
-              whileHover={{ y: -10 }}
-              className="rounded-3xl border border-white/10 bg-white/5 p-10 backdrop-blur-xl"
-            >
-
-              <h3 className="text-6xl font-black text-blue-400">
-                SLA
-              </h3>
-
-              <p className="mt-6 text-xl font-semibold">
-                Enterprise Workflows
-              </p>
-
-              <p className="mt-4 leading-7 text-zinc-400">
-                Structured operational systems optimized for scale.
-              </p>
-
-            </motion.div>
+              </motion.div>
+            ))}
 
           </div>
 
@@ -550,11 +560,17 @@ export default function Home() {
       </section>
 
       {/* CONTACT SECTION */}
-      <section id="contact" className="px-6 py-28 scroll-mt-24">
+      <section id="contact" className="scroll-mt-24 px-6 py-28">
 
         <div className="mx-auto max-w-3xl">
 
-          <div className="text-center">
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={fadeUp}
+            className="text-center"
+          >
             <p className="mb-4 text-sm uppercase tracking-[0.3em] text-blue-400">
               GET IN TOUCH
             </p>
@@ -566,9 +582,21 @@ export default function Home() {
             <p className="mt-6 text-lg leading-8 text-zinc-400">
               Tell us about your support needs and we&apos;ll get back to you shortly.
             </p>
-          </div>
 
-          <form
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="mt-8 inline-flex items-center gap-2 rounded-2xl border border-blue-400/20 bg-blue-500/10 px-6 py-3 text-blue-300 transition hover:border-blue-400/40 hover:bg-blue-500/20 hover:text-blue-200"
+            >
+              <IconMail />
+              {CONTACT_EMAIL}
+            </a>
+          </motion.div>
+
+          <motion.form
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={fadeUp}
             onSubmit={handleSubmit}
             className="mt-14 space-y-6 rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl md:p-12"
           >
@@ -632,25 +660,22 @@ export default function Home() {
 
             <button
               type="submit"
-              disabled={formState === "loading"}
-              className="w-full rounded-2xl bg-blue-500 px-8 py-5 text-lg font-semibold shadow-[0_20px_80px_rgba(59,130,246,0.35)] transition hover:scale-[1.01] hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-2xl bg-blue-500 px-8 py-5 text-lg font-semibold shadow-[0_20px_80px_rgba(59,130,246,0.35)] transition hover:scale-[1.01] hover:bg-blue-400 hover:shadow-[0_20px_80px_rgba(59,130,246,0.5)]"
             >
-              {formState === "loading" ? "Sending..." : "Send Message"}
+              Send Message
             </button>
 
-            {formState === "success" && (
+            <p className="text-center text-sm text-zinc-500">
+              This opens your email app with the message pre-filled, addressed to {CONTACT_EMAIL}.
+            </p>
+
+            {formState === "sent" && (
               <p className="text-center text-emerald-400">
-                Thanks — your message has been sent. We&apos;ll be in touch soon.
+                Your email app should now be open — hit send there to reach us.
               </p>
             )}
 
-            {formState === "error" && (
-              <p className="text-center text-red-400">
-                Something went wrong. Please try again, or email us directly.
-              </p>
-            )}
-
-          </form>
+          </motion.form>
 
         </div>
 
@@ -664,7 +689,7 @@ export default function Home() {
           <div className="relative">
 
             {/* GLOW */}
-            <div className="absolute left-1/2 top-0 h-[400px] w-[400px] -translate-x-1/2 rounded-full bg-blue-500/20 blur-[140px]" />
+            <div className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[400px] -translate-x-1/2 rounded-full bg-blue-500/20 blur-[140px]" />
 
             <div className="relative text-center">
 
@@ -695,12 +720,12 @@ export default function Home() {
                   Book Free Consultation
                 </button>
 
-                <button
-                  onClick={() => scrollToId("contact")}
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
                   className="rounded-2xl border border-white/10 bg-white/5 px-10 py-5 text-lg font-semibold backdrop-blur-xl transition duration-500 ease-out hover:scale-105 hover:bg-white/10"
                 >
-                  Contact Sales
-                </button>
+                  Email Us Directly
+                </a>
 
               </div>
 
@@ -728,6 +753,66 @@ export default function Home() {
         </div>
 
       </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-white/10 px-6 py-16">
+        <div className="mx-auto max-w-7xl">
+
+          <div className="grid gap-12 md:grid-cols-3">
+
+            <div>
+              <button onClick={scrollToTop} className="group flex items-center gap-3">
+                <AxisMark className="h-8 w-8 transition duration-500 group-hover:rotate-90" />
+                <span className="text-lg font-bold tracking-wide">
+                  APEX <span className="text-blue-400">AXIS</span>
+                </span>
+              </button>
+              <p className="mt-4 max-w-xs text-sm leading-6 text-zinc-500">
+                Enterprise customer support infrastructure — live chat, technical
+                support, voice, email, and dedicated remote teams.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-400">
+                Quick Links
+              </h4>
+              <div className="mt-4 flex flex-col gap-3 text-sm text-zinc-500">
+                <button onClick={() => scrollToId("services")} className="w-fit text-left transition hover:text-blue-300">
+                  Services
+                </button>
+                <button onClick={() => scrollToId("why")} className="w-fit text-left transition hover:text-blue-300">
+                  About
+                </button>
+                <button onClick={() => scrollToId("contact")} className="w-fit text-left transition hover:text-blue-300">
+                  Contact
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-400">
+                Get In Touch
+              </h4>
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="mt-4 flex w-fit items-center gap-2 text-sm text-zinc-500 transition hover:text-blue-300"
+              >
+                <IconMail />
+                {CONTACT_EMAIL}
+              </a>
+            </div>
+
+          </div>
+
+          <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-sm text-zinc-500 sm:flex-row">
+            <p>© {new Date().getFullYear()} Apex Axis. All rights reserved.</p>
+            <p>Built for enterprise support operations.</p>
+          </div>
+
+        </div>
+      </footer>
+
     </main>
   );
 }
