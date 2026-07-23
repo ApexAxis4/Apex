@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Intercom from "@intercom/messenger-js-sdk";
 
 const CONTACT_EMAIL = "support@apexaxis.in";
 
@@ -126,6 +127,12 @@ const fadeUp = {
 
 export default function Home() {
   const [formState, setFormState] = useState<"idle" | "sent">("idle");
+
+  useEffect(() => {
+    Intercom({
+      app_id: "s1gnk59d",
+    });
+  }, []);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
